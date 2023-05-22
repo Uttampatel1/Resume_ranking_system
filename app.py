@@ -21,7 +21,6 @@ def load_job(job_dec):
     job_description = job_dec.read().decode('utf-8')
     return re.sub(r'\s+', ' ', job_description).strip()
     
-    
 @app.route('/')
 def index():
     return render_template('index.html')
