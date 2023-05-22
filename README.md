@@ -24,6 +24,10 @@ To run the application and view the user interface:
 
 Follow the instructions provided on the UI to upload or select the resumes and enter the job description. Once the ranking process is complete, the results will be displayed on the `index.html` page.
 
+## Demo 
+
+![image](static/demo.png)
+
 ## Notes
 
 -   This system uses natural language processing techniques and algorithms to rank resumes based on their relevance to the job description. While it can provide valuable insights, it is not a definitive measure of a candidate's suitability for a role. Always exercise your judgment and consider other factors when making hiring decisions.
