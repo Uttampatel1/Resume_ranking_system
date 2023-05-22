@@ -1,7 +1,7 @@
 import openai
 import spacy
 
-openai.api_key = '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'
+openai.api_key = ''
 nlp = spacy.load('en_core_web_lg')
 
 
