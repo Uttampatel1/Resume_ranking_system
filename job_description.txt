@@ -20,8 +20,6 @@ Technical Requirements:
 - AI/ML Model development and deployment on cloud platforms (AWS, Azure, GCP).
 - Knowledge of NLP and computer vision.
 
-exp:
-- 3 year
 
 Good to have skills:
 

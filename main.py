@@ -8,6 +8,7 @@ import fitz
 from sklearn.metrics import jaccard_score
 from dateutil import parser
 from datetime import datetime
+from exp_of_resume import calculate_duration
 
 nlp = spacy.load("en_core_web_lg")
 # json_file_
@@ -92,8 +93,8 @@ def load_resume(resume_folder):
                         text += str(page.get_text())
                         # print(text)
                 resumes.append(" ".join(text.split("\n")))
-                print(text)
-                print("------------------------------------------------------------------------------------------")
+                # print(text)
+                # print("------------------------------------------------------------------------------------------")
         resume_names.append(filename)
     return resumes , resume_names
 
@@ -222,37 +223,12 @@ def extract_experience(resume_text):
                 else:
                     experience_dict[domain] = experience_months / 12
          
-    experience_years = 0
-     # Search for "Oct 2021 to Present" pattern
-    pattern2 = r"([A-Z][a-z]{2}\s\d{4})\s*to\s*Present"
-    matches2 = re.findall(pattern2, resume_text)
-    
-    # Calculate the total years of experience from "Oct 2021 to Present" pattern
-    current_year = datetime.now().year
-    for match in matches2:
-        start_year = int(match.split()[1])
-        experience_years += (current_year - start_year)
-    
-    # Search for specific date range pattern like "Feb 2021 to Sep 2021"
-    pattern3 = r"([A-Z][a-z]{2}\s\d{4})\s*to\s*([A-Z][a-z]{2}\s\d{4})"
-    matches3 = re.findall(pattern3, resume_text)
-    
-    # Calculate the total years of experience from specific date range pattern
-    for match in matches3:
-        start_year = int(match[0].split()[1])
-        start_month = datetime.strptime(match[0].split()[0], "%b").month
-        end_year = int(match[1].split()[1])
-        end_month = datetime.strptime(match[1].split()[0], "%b").month
-        
-        # Calculate the difference in years and months
-        months_diff = (end_year - start_year) * 12 + (end_month - start_month)
-        experience_years += months_diff / 12
+
 
     total_experience_years = total_experience_months / 12
     total_experience_years = round(total_experience_years, 1)
     total_experience_months = round(total_experience_months, 1)
 
-    experience_dict['demo--'] = experience_years
     experience_dict["Total (Years)"] = total_experience_years
     experience_dict["Total (Months)"] = total_experience_months
     return experience_dict
@@ -285,13 +261,16 @@ def find_best_resume(resume_data, job_description):
     # print(skill_scores)    
     
     # don't uncomments this
-    exp_list = []
-    for text in resume_data[0]:
-        exp_list.append(extract_experience(text))
-    for i in range(len(resumes)):
-        print(f"{resume_names[i]} : >>>>>>>> {exp_list[i]}")
-        print()
-    
+    total_exp = []
+    exp_yer = []
+    for data in resumes:
+        number_of_days = calculate_duration(data)
+        years = number_of_days // 365
+        months = (number_of_days - years *365) // 30
+        exp = f"{years} year {months} months"
+        exp_yer.append(exp)
+        total_exp.append(number_of_days)
+    # print(total_exp)
     
     # conert to per %
     similarity_scores = [round(i*100,1)for i in similarity_scores]
@@ -302,8 +281,8 @@ def find_best_resume(resume_data, job_description):
         final_score.append(0.6 * skill_scores[i] + 0.5 * similarity_scores[i])
     
     # ranked_resumes = sorted(list(zip(resume_names,skill_scores, similarity_scores)), key=lambda x: (x[2], x[1]), reverse=True)
-    ranked_resumes = sorted(list(zip(resume_names,final_score)), key=lambda x: (x[1]), reverse=True)
-    print(ranked_resumes)
+    ranked_resumes = sorted(list(zip(resume_names,final_score,exp_yer)), key=lambda x: (x[1]), reverse=True)
+    # print(ranked_resumes)
     # save data csv file
     # save_output_file(ranked_resumes,output_path)
 

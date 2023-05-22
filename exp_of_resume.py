@@ -24,143 +24,144 @@ def load_resume(resume_folder):
     return resumes , resume_names
 
 
+def calculate_duration(text): 
+    days = 0
+    # text 1: Oct 2021 to Present
+    # match = re.match(f'^{month_pattern} {year_pattern} to {present_pattern}$', text, re.IGNORECASE)
+    try:
+        pattern = r"\b\w{3}\s+\d{4}\s+to\s+(?:\b\w{3}\s+)?(?:\d{4}|Present)\b"
+        match = re.search(pattern, text)
+        if match:
+            date = match.group(0).split('to')[0].strip()
+            start_date = datetime.strptime(date, "%b %Y")
+            end_date = datetime.now()
+            days += (end_date - start_date).days
+    except:
+        pass
 
-def extract_experience(resume_texts):
-    total_exp = []    
-    for resume_text in resume_texts:
-        experience_years = 0
-        
-        # # Search for internship and project information
-        # pattern1 = r"(?:Duration\s*-\s*([A-Z]{3}\s*\d{4})\s*–)|(?:\d{4}\s*-\s*\d{4})"
-        # matches1 = re.findall(pattern1, resume_text)
-        
-        # # Calculate the total years of experience from specific date ranges
-        # for match in matches1:
-        #     if match[0]:
-        #         start_year = int(match[0].split()[1])
-        #         end_year = int(match[0].split()[2])
-        #         experience_years += (end_year - start_year)
-        #     elif match[1]:
-        #         start_year = int(match[1].split('-')[0])
-        #         end_year = int(match[1].split('-')[1])
-        #         experience_years += (end_year - start_year)
-        
-        # Search for "Oct 2021 to Present" pattern
-        pattern2 = r"([A-Z][a-z]{2}\s\d{4})\s*to\s*Present"
-        matches2 = re.findall(pattern2, resume_text)
-        
-        # Calculate the total years of experience from "Oct 2021 to Present" pattern
-        current_year = datetime.now().year
-        for match in matches2:
-            start_year = int(match.split()[1])
-            experience_years += (current_year - start_year)
-        
-        # Search for specific date range pattern like "Feb 2021 to Sep 2021"
-        pattern3 = r"([A-Z][a-z]{2}\s\d{4})\s*to\s*([A-Z][a-z]{2}\s\d{4})"
-        matches3 = re.findall(pattern3, resume_text)
-        
-        # Calculate the total years of experience from specific date range pattern
-        for match in matches3:
-            start_year = int(match[0].split()[1])
-            start_month = datetime.strptime(match[0].split()[0], "%b").month
-            end_year = int(match[1].split()[1])
-            end_month = datetime.strptime(match[1].split()[0], "%b").month
-            
-            # Calculate the difference in years and months
-            months_diff = (end_year - start_year) * 12 + (end_month - start_month)
-            experience_years += months_diff / 12
-        
-        # Search for specific date range pattern like "JUN 2022 - JULY 2022"
-        pattern4 = r"([A-Z][a-z]{2,9})\s*\d{4}\s*-\s*([A-Z][a-z]{2,9})\s*\d{4}"
-        matches4 = re.findall(pattern4, resume_text)
-        
-        # Calculate the total years of experience from specific date range pattern
-        for match in matches4:
-            start_month = datetime.strptime(match[0], "%B").month
-            start_year = int(match[0].split()[1])
-            end_month = datetime.strptime(match[1], "%B").month
-            end_year = int(match[1].split()[1])
-            
-            # Calculate the difference in years and months
-            months_diff = (end_year - start_year) * 12 + (end_month - start_month)
-            experience_years += months_diff / 12
-        
-        # Search for specific date range pattern like "OCT-2022 - MARCH-2023"
-        pattern5 = r"([A-Z]{3})-\d{4}\s*-\s*([A-Z]{3})-\d{4}"
-        matches5 = re.findall(pattern5, resume_text)
-        
-        # Calculate the total years of experience from specific date range pattern
-        for match in matches5:
-            start_month = datetime.strptime(match[0], "%b").month
-            start_year = int(match[0].split('-')[1])
-            end_month = datetime.strptime(match[1], "%b").month
-            end_year = int(match[1].split('-')[1])
-            
-            # Calculate the difference in years and months
-            months_diff = (end_year - start_year) * 12 + (end_month - start_month)
-            experience_years += months_diff / 12
-        
-        # Search for specific date range pattern like "September 2019 – March 2022"
-        pattern6 = r"([A-Z][a-z]{2,9})\s*\d{4}\s*–\s*([A-Z][a-z]{2,9})\s*\d{4}"
-        matches6 = re.findall(pattern6, resume_text)
-        
-        # # Calculate the total years of experience from specific date range pattern
-        # for match in matches6:
-        #     start_year = int(match[0].split()[1])
-        #     start_month = datetime.strptime(match[0].split()[0], "%B").month
-        #     end_year = int(match[1].split()[1])
-        #     end_month = datetime.strptime(match[1].split()[0], "%B").month
-            
-        #     # Calculate the difference in years and months
-        #     months_diff = (end_year - start_year) * 12 + (end_month - start_month)
-        #     experience_years += months_diff / 12
-        
-        # Search for specific date range pattern like "September 2022 – present"
-        pattern7 = r"([A-Z][a-z]{2,9})\s*\d{4}\s*–\s*present"
-        matches7 = re.findall(pattern7, resume_text)
-        
-        # # Calculate the total years of experience from specific date range pattern
-        # current_year = datetime.now().year
-        # for match in matches7:
-        #     start_year = int(match.split()[1])
-        #     start_month = datetime.strptime(match.split()[0], "%B").month
-            
-        #     # Calculate the difference in years and months
-        #     months_diff = (current_year - start_year) * 12 + (datetime.now().month - start_month)
-        #     experience_years += months_diff / 12
-        
-        # Search for specific date range pattern like "12/2022 – 02/2023"
-        pattern8 = r"(\d{2})/(\d{4})\s*–\s*(\d{2})/(\d{4})"
-        matches8 = re.findall(pattern8, resume_text)
-        
-        # Calculate the total years of experience from specific date range pattern
-        for match in matches8:
-            start_month = int(match[0])
-            start_year = int(match[1])
-            end_month = int(match[2])
-            end_year = int(match[3])
-            
-            # Calculate the difference in years and months
-            months_diff = (end_year - start_year) * 12 + (end_month - start_month)
-            experience_years += months_diff / 12
-            
-        total_exp.append(round(experience_years, 2))
-        
-        # print(pattern1)
-        print(pattern2)
-        print(pattern3)
-        print(pattern4)
-        print(pattern5)
-        print(pattern6)
-        print(pattern7)
-        print(pattern8)
-        print("--------------------------------------------------------------------------------------------------------------------------------------------")
+    # text 2: Feb 2021 to Sep 2021
+    # match = re.match(f'^{month_pattern} {year_pattern} to {month_pattern} {year_pattern}$', text, re.IGNORECASE)
+    pattern = r"(?:\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\s+to\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}\b|\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\s+to\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\b)"
+    match = re.findall(pattern, text)
+    if match:
+        for data in match:
+            data = data.split(' to ')
+            # print(data)
+            # print("-----------------------------")
+            if len(data[0]) == 8 and len(data[1]) == 8:
+                start_date = datetime.strptime(data[0].strip(), '%b %Y')
+                end_date = datetime.strptime(data[1].strip(), '%b %Y')
+                days += (end_date - start_date).days
+                
+            elif len(data[0]) > 8 and len(data[1]) > 8:
+                start_date = datetime.strptime(data[0].strip(), '%B %Y')
+                end_date = datetime.strptime(data[1].strip(), '%B %Y')
+               
+                days += (end_date - start_date).days
+            elif len(data[0]) == 8 and len(data[1]) > 8:
+                start_date = datetime.strptime(data[0].strip(), '%b %Y')
+                end_date = datetime.strptime(data[1].strip(), '%B %Y')
+                days += (end_date - start_date).days
+            else:
+                start_date = datetime.strptime(data[0].strip(), '%B %Y')
+                end_date = datetime.strptime(data[1].strip(), '%b %Y')
+                days += (end_date - start_date).days 
+                
+   
+    # NOV 2022 – JAN 2023
+    # pattern = r"\b(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s+\d{4}\b\s*(-|–)\s*\b(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s+\d{4}\b"
+    pattern = r"\b(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\b\s*(?:–|-)\s*(?:January|February|March|April|May|June|July|August|September|October|November|December|JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV)\s+\d{4}\b"
     
-    return total_exp
+    match = re.findall(pattern, text)
+    if match:
+        for data in match:
+            data = data.replace("–","-")
+            data = data.split(" - ")
+            if len(data[0]) == 8 and len(data[1]) == 8:
+                start_date = datetime.strptime(data[0].strip(), '%b %Y')
+                end_date = datetime.strptime(data[1].strip(), '%b %Y')
+                days += (end_date - start_date).days
+            elif len(data[0]) > 8 and len(data[1]) > 8:
+                start_date = datetime.strptime(data[0].strip(), '%B %Y')
+                end_date = datetime.strptime(data[1].strip(), '%B %Y')
+                days += (end_date - start_date).days 
+                
+            elif len(data[0]) > 8 and len(data[1] == 8):
+                start_date = datetime.strptime(data[0].strip(), '%B %Y')
+                end_date = datetime.strptime(data[1].strip(), '%b %Y')
+                days += (end_date - start_date).days
+            
+            else:
+                start_date = datetime.strptime(data[0].strip(), '%b %Y')
+                end_date = datetime.strptime(data[1].strip(), '%B %Y')
+                days += (end_date - start_date).days
+                
+    # OCT-2022 - MARCH-2023' 
+    pattern = r"\b(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)-\d{4}\b\s*-\s*\b(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)-\d{4}\b"
+    match = re.findall(pattern, text)
+    if match:
+        for data in match:
+            data = data.split(' - ')
+            st = data[0].replace("-"," ")
+            ed = data[1].replace("-"," ")
+            if len(data[0]) == 8 and len(data[1]) == 8:
+                start_date = datetime.strptime(st, '%b %Y')
+                end_date = datetime.strptime(ed, '%b %Y')
+                days += (end_date - start_date).days
+            elif len(data[0]) > 8 and len(data[1] ==8):
+                start_date = datetime.strptime(st, '%B %Y')
+                end_date = datetime.strptime(ed, '%b %Y')
+                days += (end_date - start_date).days
+            elif len(data[0]) == 8 and len(data[1]) > 8:
+                start_date = datetime.strptime(st, '%b %Y')
+                end_date = datetime.strptime(ed, '%B %Y')
+                days += (end_date - start_date).days
+            else:
+                start_date = datetime.strptime(st, '%B %Y')
+                end_date = datetime.strptime(ed, '%B %Y')
+                days += (end_date - start_date).days 
+
+    try:
+        # text 4: September 2019 – March 2022
+        regex_pattern = r"(\w+ \d{4}) – (\w+ \d{4})"
+        match = re.match(regex_pattern, text, re.IGNORECASE)
+        if match:
+            date = match.group(0).split('–')
+            start_date = datetime.strptime(date[0].strip(), '%B %Y')
+            end_date = datetime.strptime(date[1].strip(), '%B %Y')
+            days += (end_date - start_date).days
+    except:
+        pass
+
+    # text 5: September 2022 – present
+    regex_pattern = r'^\w+ \d{4} – present$'
+    match = re.match(regex_pattern, text, re.IGNORECASE)
+    if match:
+        date = match.group(0).split('–')
+        start_date = datetime.strptime(date[0].strip(), '%B %Y')
+        end_date = datetime.now()
+        days += (end_date - start_date).days
+
+    # text 6: 12/2022 – 02/2023
+    pattern = r"\b\d{2}/\d{4}\s*–\s*\d{2}/\d{4}\b"
+    match = re.findall(pattern, text)
+    if match:
+        for data in match[:1]:
+            data = data.split(" – ")
+            start_date = datetime.strptime(data[0], '%m/%Y')
+            end_date = datetime.strptime(data[1], '%m/%Y')
+            days += (end_date - start_date).days
+    
+    # If no text matched
+    return days
+
 
 if __name__ == "__main__":
     resume_folder = '/home/indianic/Desktop/sentimate/resume_ranking/AI_ML_CVs'
     resumes , resume_name = load_resume(resume_folder)
-    total_exps = extract_experience(resumes)
-    for i in range(len(resumes)):
-        print(resume_name[i],'----------------------------',total_exps[i])
+    total_exp = []
+    for text in resumes:
+        data = calculate_duration(text)
+        print(data)
+        total_exp.append(data)
+    print(total_exp)
